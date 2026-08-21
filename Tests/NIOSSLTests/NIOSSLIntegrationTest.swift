@@ -2976,11 +2976,13 @@ class NIOSSLIntegrationTest: XCTestCase {
             let errorString = String(describing: error)
 
             let range = NSRange(location: 0, length: errorString.utf16.count)
+            // The trailing path comes from BoringSSL's `__FILE__`, so its directory
+            // separator follows the host platform: `/` on POSIX, `\` on Windows.
             let regex = try! NSRegularExpression(
                 pattern:
-                    "sslError\\(\\[Error\\: 268435703 error\\:100000f7\\:SSL routines\\:OPENSSL_internal\\:WRONG_VERSION_NUMBER at .*\\/[A-Za-z_]+\\.cc\\:[0-9]+\\]\\)"
+                    "sslError\\(\\[Error\\: 268435703 error\\:100000f7\\:SSL routines\\:OPENSSL_internal\\:WRONG_VERSION_NUMBER at .*[/\\\\][A-Za-z_]+\\.cc\\:[0-9]+\\]\\)"
             )
-            XCTAssertNotNil(regex.firstMatch(in: errorString, options: [], range: range))
+            XCTAssertNotNil(regex.firstMatch(in: errorString, options: [], range: range), errorString)
         }
         (clientChannel.eventLoop as! EmbeddedEventLoop).run()
         XCTAssertTrue(clientClosed.withLockedValue { $0 })
