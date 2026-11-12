@@ -521,7 +521,7 @@ func randomSerialNumber() -> ASN1_INTEGER {
     let bytesToRead = 20
     var readBytes = Array.init(repeating: UInt8(0), count: bytesToRead)
     let rc = readBytes.withUnsafeMutableBytes {
-        CNIOBoringSSL_RAND_bytes($0.baseAddress!.assumingMemoryBound(to: UInt8.self), $0.count)
+        RAND_bytes($0.baseAddress!.assumingMemoryBound(to: UInt8.self), $0.count)
     }
     precondition(rc == 1)
 
