@@ -126,7 +126,11 @@ let package = Package(
             ],
             exclude: includePrivacyManifest ? [] : ["PrivacyInfo.xcprivacy"],
             resources: includePrivacyManifest ? [.copy("PrivacyInfo.xcprivacy")] : [],
-            swiftSettings: strictConcurrencySettings
+            swiftSettings: strictConcurrencySettings,
+            linkerSettings: [
+                // The Windows system trust store (WindowsCABundle.swift).
+                .linkedLibrary("crypt32", .when(platforms: [.windows]))
+            ]
         ),
         .executableTarget(
             name: "NIOTLSServer",

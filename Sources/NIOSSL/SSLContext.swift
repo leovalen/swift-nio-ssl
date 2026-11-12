@@ -747,7 +747,8 @@ extension NIOSSLContext {
     private static func platformDefaultConfiguration(context: OpaquePointer) throws {
         // Platform default trust is configured differently in different places.
         // On Linux, we use our searched heuristics to guess about where the platform trust store is.
-        // On Darwin, we use a custom callback that is set later, in createConnection
+        // On Darwin, we use a custom callback that is set later, in createConnection.
+        // On Windows, we load the "ROOT" system store (WindowsCABundle.swift).
         #if os(Linux) || os(FreeBSD)
         let result = rootCAFilePath.withCString { rootCAFilePointer in
             rootCADirectoryPath.withCString { rootCADirectoryPointer in
@@ -768,6 +769,8 @@ extension NIOSSLContext {
             let errorStack = BoringSSLError.buildErrorStack()
             throw BoringSSLError.unknownError(errorStack)
         }
+        #elseif os(Windows)
+        try loadWindowsSystemRoots(into: context)
         #endif
     }
 
